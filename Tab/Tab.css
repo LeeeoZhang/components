@@ -1,0 +1,38 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+ul,ol {
+    list-style: none;
+}
+
+.tab-container {
+    width: 500px;
+    margin: 0 auto;
+    border: 1px solid black;
+    margin-top: 30px;
+    border-radius: 10px;
+}
+.tab {
+    display: flex;
+    margin: 10px;
+}
+.tab>li {
+    padding: 5px 10px;
+    cursor: pointer;
+}
+.content {
+    margin: 10px;
+}
+.content>li {
+    display: none;
+}
+
+
+li.show {
+    display: block;
+}
+
+.active {
+    border-bottom: 5px solid black;
+}
