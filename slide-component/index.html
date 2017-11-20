@@ -46,26 +46,29 @@
     <script src="./velocity.min.js"></script>
 </head>
 <body>
-    <div class="page page1">1</div>
-    <div class="page page2">2</div>
-    <div class="page page3">3</div>
-    <div class="page page4">4</div>
-    <div class="page page5">5</div>
-    <div class="page page6">6</div>
-    <div class="page page7">7</div>
-    <div class="page page8">8</div>
-    <div class="page page9">9</div>
-    <div class="page page10">10</div>
+    <div class="page page1">0</div>
+    <div class="page page2">1</div>
+    <div class="page page3">2</div>
+    <div class="page page4">3</div>
+    <div class="page page5">4</div>
+    <div class="page page6">5</div>
+    <div class="page page7">6</div>
+    <div class="page page8">7</div>
+    <div class="page page9">8</div>
+    <div class="page page10">9</div>
     <script src="./Pages.js"></script>
     <script>
         var body = document.querySelector('body')
         var pageList = document.querySelectorAll('.page')
+
+        //new一个新Pages
         var pages = new Pages({
             wrap1: body,
             pageList: pageList,
             loop: true
         })
         pageList[0].style.transform = 'translateY(-100%)'
+        pageList[0].classList.add('action')
     </script>
 </body>
 </html>
