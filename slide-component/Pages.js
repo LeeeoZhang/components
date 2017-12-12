@@ -1,7 +1,7 @@
 /*
     移动端fullPage,基于Velocity.js
  */
-!function () {
+! function () {
     //禁止浏览器默认滑动
     document.addEventListener('touchmove', function (event) {
         event.preventDefault()
@@ -9,7 +9,7 @@
         passive: false
     })
 
-    function Pages (params) {
+    function Pages(params) {
         this.startX = 0
         this.startY = 0
         this.moveX = 0
@@ -96,8 +96,6 @@
         this.pageList[this.next].style.top = '100%'
         this.pageList[this.next].style.zIndex = this.zIndex
 
-
-        console.log(this.current, this.next, this.prev)
         Velocity(this.pageList[this.next], {
             translateY: ['-100%', 0]
         }, {
@@ -105,10 +103,10 @@
             easing: 'swing',
             complete: function () {
                 _this.current++
-                _this.next = _this.current + 1
+                    _this.next = _this.current + 1
                 _this.prev = _this.current - 1
                 _this.zIndex++
-                _this.isAnimate = false
+                    _this.isAnimate = false
 
                 //改变class
                 _this.changeClass()
@@ -143,10 +141,10 @@
             easing: 'swing',
             complete: function () {
                 _this.current--
-                _this.next = _this.current + 1
+                    _this.next = _this.current + 1
                 _this.prev = _this.current - 1
                 _this.zIndex++
-                _this.isAnimate = false
+                    _this.isAnimate = false
 
                 //改变class
                 _this.changeClass()
@@ -157,11 +155,10 @@
     //移除添加action类名
     /*****待优化******/
     Pages.prototype.changeClass = function () {
-        this.pageList.forEach(function(item,index){
+        this.pageList.forEach(function (item, index) {
             item.classList.remove('action')
         })
         this.pageList[this.current].classList.add('action')
     }
     window.Pages = Pages
-
 }()
