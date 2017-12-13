@@ -8,6 +8,7 @@
         this.init()
         this.bind()
     }
+    
     //启动函数
     Olert.prototype.init = function () {
         let html = `<div class="olert">

@@ -1,3 +1,5 @@
 let bom = {
+    checkBrowser(){
 
+    },
 }

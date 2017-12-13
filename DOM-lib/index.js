@@ -1,4 +1,5 @@
-let Dom = {
+let dom = {
+
     on: function(element, eventType, selector, handle) {
         element.addEventListener(eventType, (event) => {
             let targetElement = event.target
@@ -13,6 +14,7 @@ let Dom = {
         })
         return element
     },
+
     index: function(element) {
         let siblings = element.parentNode.children //获取所有子元素
         for (index = 0; index < siblings.length; index++) { //判断在哪个位置上，返回相应index
@@ -134,5 +136,10 @@ let Dom = {
             element.classList.remove(className)
         })
         element.classList.add(className)
-    }
+    },
+
+    //动态设置元素css
+    css: function(element,key,value){
+        element.style[key] = value
+    },
 }
