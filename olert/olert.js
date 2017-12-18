@@ -1,4 +1,4 @@
-! function (win) {
+ function (win) {
     function Olert() {
         this.wrap = null
         this.contentWrap = null
@@ -39,6 +39,5 @@
             _this.confirmHandler && _this.confirmHandler.call()
         })
     }
-
     win.olert = new Olert()
 }(window)
