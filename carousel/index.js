@@ -31,17 +31,13 @@ Carousel.prototype = {
         })
     },
     next: function(){
-        if(this.index >= this.pageNum - 1 ) {
-            this.index = this.pageNum - 1
-        }
+        if(this.index >= this.pageNum - 1 ) this.index = this.pageNum - 1
         this.wrap2.style.transform = `translateX(${-this.eachWidth*this.index}px)`
         this.index +=1 
     },
     pre: function(){
         this.index -=1 
-        if(this.index < 0  ) {
-            this.index = 0
-        }
+        if(this.index < 0  ) this.index = 0
         this.wrap2.style.transform = `translateX(${-this.eachWidth*this.index}px)`
     },
 }
@@ -54,3 +50,20 @@ let option = {
 }
 
 new Carousel(option)
+
+
+
+
+
+
+
+var a = []
+function xx(){
+    for(let i =0 ;i<8; i++) {
+        for(let j=0;j<8;j++) {
+            a.push([i,j])
+        }
+    }
+}
+xx()
+console.log(a.length)
