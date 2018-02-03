@@ -1,5 +1,4 @@
 let dom = {
-
     on: function(element, eventType, selector, handle) {
         element.addEventListener(eventType, (event) => {
             let targetElement = event.target

@@ -62,13 +62,13 @@
         var pageList = document.querySelectorAll('.page')
 
         //new一个新Pages
-        var pages = new Pages({
+        var pages = new Full({
             wrap1: body,
             pageList: pageList,
             loop: true
         })
         pageList[0].style.transform = 'translateY(-100%)'
-        pageList[0].classList.add('action')
+        pageList[0].classList.add('active')
     </script>
 </body>
 </html>

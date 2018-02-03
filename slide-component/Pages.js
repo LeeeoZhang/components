@@ -1,241 +1,119 @@
 /*
     移动端fullPage,基于Velocity.js
  */
-! function () {
-    //禁止浏览器默认滑动
-    document.addEventListener('touchmove', function (event) {
-        event.preventDefault()
-    }, {
-        passive: false
-    })
 
-    function Pages(params) {
-        this.startX = 0
-        this.startY = 0
-        this.moveX = 0
-        this.moveY = 0
-        this.wrap1 = params.wrap1
-        this.pageList = params.pageList
-        this.totalPages = this.pageList.length
-        this.current = 0 //当前页数
-        this.next = 1 //下一页数
-        this.prev = 0 //前一页数
-        this.zIndex = 1
-        this.isAnimate = false
-        this.loop = params.loop
-        this.cb = params.cb
-        this.bind()
-    }
-
-    //事件绑定
-    Pages.prototype.bind = function () {
-        var _this = this
-        this.wrap1.addEventListener('touchstart', function (event) {
-            _this.touchStart(event)
-        })
-        this.wrap1.addEventListener('touchmove', function (event) {
-            _this.touchMove(event)
-        })
-        this.wrap1.addEventListener('touchend', function (event) {
-            _this.touchEnd(event)
-        })
-    }
-
-    //touchstart事件处理,记录初始触摸坐标
-    Pages.prototype.touchStart = function (event) {
-        var evt = event || window.event //兼容ie
-        this.startX = evt.touches[0].clientX
-        this.startY = evt.touches[0].clientY
-    }
-
-    //touchmove事件处理,记录移动距离
-    Pages.prototype.touchMove = function (event) {
-        var evt = event || window.event
-        var xMove = evt.touches[0].clientX //移动坐标
-        var yMove = evt.touches[0].clientY
-        this.moveX = xMove - this.startX
-        this.moveY = yMove - this.startY
-    }
-
-    //通过moveY,moveX判断滑动方向
-    Pages.prototype.touchEnd = function () {
-        if (Math.abs(this.moveX) > Math.abs(this.moveY)) {
-            if (this.moveX > 100) {
-                console.log('向右滑动')
-                this.rightHandler()
-            } else if (this.moveX < -100) {
-                console.log('向左滑动')
-                this.leftHandler()
-            }
-        } else {
-            if (this.moveY > 100) {
-                console.log('向下滑动')
-                // this.downHandler()
-            } else if (this.moveY < -100) {
-                console.log('向上滑动')
-                // this.upHandler()
-            }
+!function () {
+    class Full {
+        constructor (options) {
+            this.startX = 0
+            this.startY = 0
+            this.moveX = 0
+            this.moveY = 0
+            this.wrap1 = options.wrap1
+            this.pageList = options.pageList
+            this.totalPages = this.pageList.length
+            this.current = 0 //当前页数
+            this.next = 1    //下一页数
+            this.zIndex = 1
+            this.isAnimate = false
+            this.loop = options.loop
+            this.cb = options.cb
+            this.duration = options.duration || 300
+            this.easing = options.easing || 'swing'
+            this.direction = options.direction || 'vertical'
+            this.bind()
         }
-    }
-    //向右滑动事件处理
-    Pages.prototype.rightHandler = function () {
-        if (this.isAnimate) return
-        this.isAnimate = true
 
-        //边界判定
-        if (this.current === 0) {
-            //循环滚动吗?
-            if (this.loop) {
-                this.prev = this.totalPages - 1
-                this.current = this.totalPages
-            } else {
-                this.isAnimate = false
-                return
+        //事件绑定
+        bind () {
+            //禁止浏览器默认滑动
+            document.addEventListener('touchmove', function (event) {
+                event.preventDefault()
+            }, {passive: false})
+
+            this.wrap1.addEventListener('touchstart', (event) => {
+                this.onTouchStart(event)
+            })
+            this.wrap1.addEventListener('touchmove', (event) => {
+                this.onTouchMove(event)
+            })
+            this.wrap1.addEventListener('touchend', () => {
+                this.onTouchEnd()
+            })
+        }
+
+        onTouchStart (event) {
+            let evt = event || window.event
+            this.startX = evt.touches[0].clientX
+            this.startY = evt.touches[0].clientY
+        }
+
+        onTouchMove (event) {
+            let evt = event || window.event
+            this.moveX = evt.touches[0].clientX - this.startX
+            this.moveY = evt.touches[0].clientY - this.startY
+        }
+
+        onTouchEnd () {
+            if (Math.abs(this.moveX) > Math.abs(this.moveY) && this.direction === 'horizontal') {
+                if (this.moveX > 100) {
+                    this.onSwiperRight()
+                } else if (this.moveX < -100) {
+                    this.onSwiperLeft()
+                }
+            } else if(Math.abs(this.moveX) < Math.abs(this.moveY) && this.direction === 'vertical') {
+                if (this.moveY > 100) {
+                    this.onSwiperDown()
+                } else if (this.moveY < -100) {
+                    this.onSwiperUp()
+                }
             }
         }
 
-        var _this = this
-        this.pageList[this.prev].style.left = '-100%'
-        this.pageList[this.prev].style.zIndex = this.zIndex
-        Velocity(this.pageList[this.prev], {
-            translateY: ['100%', 0]
-        }, {
-            duration: 500,
-            easing: 'swing',
-            complete: function () {
-                _this.current--
-                _this.next = _this.current + 1
-                _this.prev = _this.current - 1
-                _this.zIndex++
-                _this.isAnimate = false
-                //改变class
-                _this.changeClass()
-                _this.cb && _this.cb.call()
-            }
-        })
-    }
-    //向左滑动事件处理
-    Pages.prototype.leftHandler = function(){
-        if (this.isAnimate) return
-        this.isAnimate = true //动画锁
+        //向上滑动事件处理
+        onSwiperUp () {
+            if(this.isAnimate) return
+            this.isAnimate = true
 
-        //边界判定
-        if (this.current + 1 === this.totalPages) {
-            //循环滚动吗?
-            if (this.loop) {
-                this.current = -1
-                this.next = 0
-            } else {
-                this.isAnimate = false
-                return
+            //边界判定
+            if(this.current === this.totalPages - 1) {
+                if(this.loop) {
+                    this.current = 0
+                    this.next = 0
+                } else {
+                    this.isAnimate = false
+                    return
+                }
             }
+
+            this.pageList[this.next].style.top = '100%'
+            this.pageList[this.next].style.zIndex = this.zIndex
+            Velocity(this.pageList[this.next],{translateY: ['-100%',0]},{
+                duration: this.duration,
+                easing: this.easing,
+                complete: () => {
+                    this.current = this.next
+                    this.next += 1
+                    this.zIndex++
+                    this.isAnimate = false
+                    this.changeClass()
+                    this.cb && cb()
+                }
+            })
         }
 
-        var _this = this
-        this.pageList[this.next].style.left = '100%'
-        this.pageList[this.next].style.zIndex = this.zIndex
-
-        Velocity(this.pageList[this.next], {
-            translateX: ['-100%', 0]
-        }, {
-            duration: 500,
-            easing: 'swing',
-            complete: function () {
-                _this.current++
-                _this.next = _this.current + 1
-                _this.prev = _this.current - 1
-                _this.zIndex++
-                _this.isAnimate = false
-                //改变class
-                _this.changeClass()
-                _this.cb && _this.cb.call()
-            }
-        })
-    }
-    //向上滑动事件处理
-    Pages.prototype.upHandler = function () {
-        if (this.isAnimate) return
-        this.isAnimate = true //动画锁
-
-        //边界判定
-        if (this.current + 1 === this.totalPages) {
-            //循环滚动吗?
-            if (this.loop) {
-                this.current = -1
-                this.next = 0
-            } else {
-                this.isAnimate = false
-                return
-            }
+        changeClass () {
+            this.pageList.forEach((item,index)=>{
+                item.classList.remove('active')
+            })
+            this.pageList[this.current].classList.add('active')
         }
-
-        var _this = this
-        this.pageList[this.next].style.top = '100%'
-        this.pageList[this.next].style.zIndex = this.zIndex
-
-        Velocity(this.pageList[this.next], {
-            translateY: ['-100%', 0]
-        }, {
-            duration: 500,
-            easing: 'swing',
-            complete: function () {
-                _this.current++
-                    _this.next = _this.current + 1
-                _this.prev = _this.current - 1
-                _this.zIndex++
-                    _this.isAnimate = false
-
-                //改变class
-                _this.changeClass()
-            }
-        })
     }
 
-    //向下滑动事件处理
-    Pages.prototype.downHandler = function () {
-        if (this.isAnimate) return
-        this.isAnimate = true
-
-        //边界判定
-        if (this.current === 0) {
-            //循环滚动吗?
-            if (this.loop) {
-                this.prev = this.totalPages - 1
-                this.current = this.totalPages
-            } else {
-                this.isAnimate = false
-                return
-            }
-        }
-
-        var _this = this
-        this.pageList[this.prev].style.top = '-100%'
-        this.pageList[this.prev].style.zIndex = this.zIndex
-        Velocity(this.pageList[this.prev], {
-            translateY: ['100%', 0]
-        }, {
-            duration: 500,
-            easing: 'swing',
-            complete: function () {
-                _this.current--
-                    _this.next = _this.current + 1
-                _this.prev = _this.current - 1
-                _this.zIndex++
-                    _this.isAnimate = false
-
-                //改变class
-                _this.changeClass()
-            }
-        })
-    }
-
-    //移除添加action类名
-    /*****待优化******/
-    Pages.prototype.changeClass = function () {
-        this.pageList.forEach(function (item, index) {
-            item.classList.remove('action')
-        })
-        this.pageList[this.current].classList.add('action')
-    }
-    window.Pages = Pages
+    window.Full = Full
 }()
+
+
+
+
+
