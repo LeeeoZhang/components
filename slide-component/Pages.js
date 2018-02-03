@@ -23,6 +23,7 @@
         this.zIndex = 1
         this.isAnimate = false
         this.loop = params.loop
+        this.cb = params.cb
         this.bind()
     }
 
@@ -59,22 +60,98 @@
     //通过moveY,moveX判断滑动方向
     Pages.prototype.touchEnd = function () {
         if (Math.abs(this.moveX) > Math.abs(this.moveY)) {
-            if (this.moveX > 50) {
+            if (this.moveX > 100) {
                 console.log('向右滑动')
-            } else if (this.moveX < -50) {
+                this.rightHandler()
+            } else if (this.moveX < -100) {
                 console.log('向左滑动')
+                this.leftHandler()
             }
         } else {
-            if (this.moveY > 50) {
+            if (this.moveY > 100) {
                 console.log('向下滑动')
-                this.downHandler()
-            } else if (this.moveY < -50) {
+                // this.downHandler()
+            } else if (this.moveY < -100) {
                 console.log('向上滑动')
-                this.upHandler()
+                // this.upHandler()
             }
         }
     }
+    //向右滑动事件处理
+    Pages.prototype.rightHandler = function () {
+        if (this.isAnimate) return
+        this.isAnimate = true
 
+        //边界判定
+        if (this.current === 0) {
+            //循环滚动吗?
+            if (this.loop) {
+                this.prev = this.totalPages - 1
+                this.current = this.totalPages
+            } else {
+                this.isAnimate = false
+                return
+            }
+        }
+
+        var _this = this
+        this.pageList[this.prev].style.left = '-100%'
+        this.pageList[this.prev].style.zIndex = this.zIndex
+        Velocity(this.pageList[this.prev], {
+            translateY: ['100%', 0]
+        }, {
+            duration: 500,
+            easing: 'swing',
+            complete: function () {
+                _this.current--
+                _this.next = _this.current + 1
+                _this.prev = _this.current - 1
+                _this.zIndex++
+                _this.isAnimate = false
+                //改变class
+                _this.changeClass()
+                _this.cb && _this.cb.call()
+            }
+        })
+    }
+    //向左滑动事件处理
+    Pages.prototype.leftHandler = function(){
+        if (this.isAnimate) return
+        this.isAnimate = true //动画锁
+
+        //边界判定
+        if (this.current + 1 === this.totalPages) {
+            //循环滚动吗?
+            if (this.loop) {
+                this.current = -1
+                this.next = 0
+            } else {
+                this.isAnimate = false
+                return
+            }
+        }
+
+        var _this = this
+        this.pageList[this.next].style.left = '100%'
+        this.pageList[this.next].style.zIndex = this.zIndex
+
+        Velocity(this.pageList[this.next], {
+            translateX: ['-100%', 0]
+        }, {
+            duration: 500,
+            easing: 'swing',
+            complete: function () {
+                _this.current++
+                _this.next = _this.current + 1
+                _this.prev = _this.current - 1
+                _this.zIndex++
+                _this.isAnimate = false
+                //改变class
+                _this.changeClass()
+                _this.cb && _this.cb.call()
+            }
+        })
+    }
     //向上滑动事件处理
     Pages.prototype.upHandler = function () {
         if (this.isAnimate) return

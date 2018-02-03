@@ -1,3 +1,7 @@
+/*
+* PC全屏滚动
+* */
+
 !function () {
     class FullPage {
         constructor(pageContainer, duration) {
