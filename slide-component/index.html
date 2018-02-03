@@ -24,7 +24,7 @@
             width: 100%;
             height: 100%;
             position: absolute;
-            top: 100%;
+            top: 0;
             left: 0;
             font-size: 30px;
             font-weight: bold;
@@ -58,17 +58,16 @@
     <div class="page page10">9</div>
     <script src="./Pages.js"></script>
     <script>
-        var body = document.querySelector('body')
-        var pageList = document.querySelectorAll('.page')
+        let body = document.querySelector('body')
+        let pageList = document.querySelectorAll('.page')
 
         //new一个新Pages
-        var pages = new Full({
+        let pages = new Full({
             wrap1: body,
             pageList: pageList,
-            loop: true
+            loop: true,
+            direction: 'horizontal'
         })
-        pageList[0].style.transform = 'translateY(-100%)'
-        pageList[0].classList.add('active')
     </script>
 </body>
 </html>

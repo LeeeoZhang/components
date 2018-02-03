@@ -21,7 +21,19 @@
             this.duration = options.duration || 300
             this.easing = options.easing || 'swing'
             this.direction = options.direction || 'vertical'
+            this.init()
+        }
+
+        init () {
             this.bind()
+            this.setPagePos()
+            if(this.direction === 'vertical') {
+                this.pageList[0].style.transform = 'translateY(-100%)'
+                this.pageList[0].classList.add('active')
+            } else {
+                this.pageList[0].style.transform = 'translateX(-100%)'
+                this.pageList[0].classList.add('active')
+            }
         }
 
         //事件绑定
@@ -92,6 +104,68 @@
                 duration: this.duration,
                 easing: this.easing,
                 complete: () => {
+                    this.resetMove()
+                    this.current = this.next
+                    this.next += 1
+                    this.zIndex++
+                    this.isAnimate = false
+                    this.changeClass()
+                    this.cb && cb()
+                }
+            })
+        }
+        //向下滑动事件
+        onSwiperDown () {
+            if(this.isAnimate) return
+            this.isAnimate = true
+
+            if(this.current === 0) {
+                if(this.loop) {
+                    this.current =this.totalPages
+                    this.next = this.totalPages - 1
+                }
+            }
+
+            this.pageList[this.current - 1].style.top = '-100%'
+            this.pageList[this.current - 1].style.zIndex = this.zIndex
+            Velocity(this.pageList[this.current - 1],{translateY: ['100%',0]},{
+                duration: this.duration,
+                easing: this.easing,
+                complete: () => {
+                    this.resetMove()
+                    this.next = this.current
+                    this.current = this.current - 1
+                    this.zIndex++
+                    this.isAnimate = false
+                    this.changeClass()
+                    this.cb && cb()
+                }
+            })
+        }
+
+        //向左滑动事件处理
+        onSwiperLeft () {
+            if(this.isAnimate) return
+            this.isAnimate = true
+
+            //边界判定
+            if(this.current === this.totalPages - 1) {
+                if(this.loop) {
+                    this.current = 0
+                    this.next = 0
+                } else {
+                    this.isAnimate = false
+                    return
+                }
+            }
+
+            this.pageList[this.next].style.left = '100%'
+            this.pageList[this.next].style.zIndex = this.zIndex
+            Velocity(this.pageList[this.next],{translateX: ['-100%',0]},{
+                duration: this.duration,
+                easing: this.easing,
+                complete: () => {
+                    this.resetMove()
                     this.current = this.next
                     this.next += 1
                     this.zIndex++
@@ -102,11 +176,56 @@
             })
         }
 
+        //向右滑动事件
+        onSwiperRight () {
+            if(this.isAnimate) return
+            this.isAnimate = true
+
+            if(this.current === 0) {
+                if(this.loop) {
+                    this.current =this.totalPages
+                    this.next = this.totalPages - 1
+                }
+            }
+
+            this.pageList[this.current - 1].style.left = '-100%'
+            this.pageList[this.current - 1].style.zIndex = this.zIndex
+            Velocity(this.pageList[this.current - 1],{translateX: ['100%',0]},{
+                duration: this.duration,
+                easing: this.easing,
+                complete: () => {
+                    this.resetMove()
+                    this.next = this.current
+                    this.current = this.current - 1
+                    this.zIndex++
+                    this.isAnimate = false
+                    this.changeClass()
+                    this.cb && cb()
+                }
+            })
+        }
+
+
         changeClass () {
             this.pageList.forEach((item,index)=>{
                 item.classList.remove('active')
             })
             this.pageList[this.current].classList.add('active')
+        }
+
+        resetMove () {
+            this.moveX = 0
+            this.moveY = 0
+        }
+
+        setPagePos () {
+            this.pageList.forEach(item=>{
+                if(this.direction === 'vertical') {
+                    item.style.top = '100%'
+                } else {
+                    item.style.left = '100%'
+                }
+            })
         }
     }
 
