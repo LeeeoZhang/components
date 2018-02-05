@@ -19,7 +19,7 @@
             this.loop = options.loop
             this.cb = options.cb
             this.duration = options.duration || 300
-            this.easing = options.easing || 'swing'
+            this.easing = options.easing || 'linear'
             this.direction = options.direction || 'vertical'
             this.init()
         }
@@ -182,7 +182,9 @@
             this.pageList[this.next].style[dir] = '100%'
             this.pageList[this.next].style.zIndex = this.zIndex
             //使用es6的变量key名
-            Velocity(this.pageList[this.next], {[trans]: ['-100%', 0]}, {
+            anime({
+                targets:this.pageList[this.next],
+                [trans]: [0,'-100%'],
                 duration: this.duration,
                 easing: this.easing,
                 complete: () => {
@@ -205,7 +207,10 @@
             let trans = this.direction === 'vertical' ? 'translateY' : 'translateX'
             this.pageList[this.current - 1].style[dir] = '-100%'
             this.pageList[this.current - 1].style.zIndex = this.zIndex
-            Velocity(this.pageList[this.current - 1], {[trans]: ['100%', 0]}, {
+
+            anime({
+                targets:this.pageList[this.current - 1],
+                [trans]: [0,'100%'],
                 duration: this.duration,
                 easing: this.easing,
                 complete: () => {
