@@ -175,19 +175,25 @@
         }
 
         swiperNext () {
+            //判断上下滑动还是左右滑动,获取不一样的参数
             let dir = this.direction === 'vertical' ? 'top' : 'left'
             let trans = this.direction === 'vertical' ? 'translateY' : 'translateX'
+            //将要过渡的页面提前放在屏幕外面
             this.pageList[this.next].style[dir] = '100%'
             this.pageList[this.next].style.zIndex = this.zIndex
+            //使用es6的变量key名
             Velocity(this.pageList[this.next], {[trans]: ['-100%', 0]}, {
                 duration: this.duration,
                 easing: this.easing,
                 complete: () => {
+                    //重置滑动距离,避免点击即可翻页
                     this.resetMove()
                     this.current = this.next
                     this.next += 1
+                    //递增zIndex,让每次过渡的页面层级都是最高的
                     this.zIndex++
                     this.isAnimate = false
+                    //切换class
                     this.changeClass()
                     this.cb && cb()
                 }
