@@ -3,7 +3,6 @@
  */
 
 !function () {
-
     class Full {
         constructor (options) {
             this.startX = 0
@@ -98,22 +97,7 @@
                     return
                 }
             }
-
-            this.pageList[this.next].style.top = '100%'
-            this.pageList[this.next].style.zIndex = this.zIndex
-            Velocity(this.pageList[this.next], {translateY: ['-100%', 0]}, {
-                duration: this.duration,
-                easing: this.easing,
-                complete: () => {
-                    this.resetMove()
-                    this.current = this.next
-                    this.next += 1
-                    this.zIndex++
-                    this.isAnimate = false
-                    this.changeClass()
-                    this.cb && cb()
-                }
-            })
+            this.swiperNext()
         }
 
         //向下滑动事件
@@ -125,24 +109,12 @@
                 if (this.loop) {
                     this.current = this.totalPages
                     this.next = this.totalPages - 1
+                } else {
+                    this.isAnimate = false
+                    return
                 }
             }
-
-            this.pageList[this.current - 1].style.top = '-100%'
-            this.pageList[this.current - 1].style.zIndex = this.zIndex
-            Velocity(this.pageList[this.current - 1], {translateY: ['100%', 0]}, {
-                duration: this.duration,
-                easing: this.easing,
-                complete: () => {
-                    this.resetMove()
-                    this.next = this.current
-                    this.current = this.current - 1
-                    this.zIndex++
-                    this.isAnimate = false
-                    this.changeClass()
-                    this.cb && cb()
-                }
-            })
+            this.swiperPre()
         }
 
         //向左滑动事件处理
@@ -160,22 +132,7 @@
                     return
                 }
             }
-
-            this.pageList[this.next].style.left = '100%'
-            this.pageList[this.next].style.zIndex = this.zIndex
-            Velocity(this.pageList[this.next], {translateX: ['-100%', 0]}, {
-                duration: this.duration,
-                easing: this.easing,
-                complete: () => {
-                    this.resetMove()
-                    this.current = this.next
-                    this.next += 1
-                    this.zIndex++
-                    this.isAnimate = false
-                    this.changeClass()
-                    this.cb && cb()
-                }
-            })
+            this.swiperNext()
         }
 
         //向右滑动事件
@@ -187,24 +144,12 @@
                 if (this.loop) {
                     this.current = this.totalPages
                     this.next = this.totalPages - 1
+                } else {
+                    this.isAnimate = false
+                    return
                 }
             }
-
-            this.pageList[this.current - 1].style.left = '-100%'
-            this.pageList[this.current - 1].style.zIndex = this.zIndex
-            Velocity(this.pageList[this.current - 1], {translateX: ['100%', 0]}, {
-                duration: this.duration,
-                easing: this.easing,
-                complete: () => {
-                    this.resetMove()
-                    this.next = this.current
-                    this.current = this.current - 1
-                    this.zIndex++
-                    this.isAnimate = false
-                    this.changeClass()
-                    this.cb && cb()
-                }
-            })
+            this.swiperPre()
         }
 
         changeClass () {
@@ -229,10 +174,12 @@
             })
         }
 
-        swipeNext () {
-            this.pageList[this.next].style.top = '100%'
+        swiperNext () {
+            let dir = this.direction === 'vertical' ? 'top' : 'left'
+            let trans = this.direction === 'vertical' ? 'translateY' : 'translateX'
+            this.pageList[this.next].style[dir] = '100%'
             this.pageList[this.next].style.zIndex = this.zIndex
-            Velocity(this.pageList[this.next], {translateY: ['-100%', 0]}, {
+            Velocity(this.pageList[this.next], {[trans]: ['-100%', 0]}, {
                 duration: this.duration,
                 easing: this.easing,
                 complete: () => {
@@ -248,7 +195,23 @@
         }
 
         swiperPre () {
-
+            let dir = this.direction === 'vertical' ? 'top' : 'left'
+            let trans = this.direction === 'vertical' ? 'translateY' : 'translateX'
+            this.pageList[this.current - 1].style[dir] = '-100%'
+            this.pageList[this.current - 1].style.zIndex = this.zIndex
+            Velocity(this.pageList[this.current - 1], {[trans]: ['100%', 0]}, {
+                duration: this.duration,
+                easing: this.easing,
+                complete: () => {
+                    this.resetMove()
+                    this.next = this.current
+                    this.current = this.current - 1
+                    this.zIndex++
+                    this.isAnimate = false
+                    this.changeClass()
+                    this.cb && cb()
+                }
+            })
         }
     }
 
