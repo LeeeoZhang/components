@@ -1,6 +1,5 @@
 <!doctype html>
 <html lang="zh">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport"
@@ -12,78 +11,24 @@
             margin: 0;
             padding: 0;
         }
-        .olert-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.7);
-            display: none;
-        }
-        .olert {
-            background: #fff;
-            position: absolute;
-            width: 80%;
-            top: 50%;
-            left: 50%;
-            border-radius: 5px;
-            opacity: 0;
-            transform-origin: 0 0 ;
-        }
-        .olert.scaleIn {
-            animation: scaleIn 0.3s ease both;
-        }
-        .olert .content {
-            padding: 2.7em 20px 1.7em;
-            color: #353535;
-            text-align: center
-        }
-        .olert .comfirm-button {
-            line-height: 48px;
-            font-size: 18px;
-            color: #0bb20c;
-            text-align: center;
-            position: relative;
-        }
-        .olert .comfirm-button:after {
-            content: ' ';
-            position: absolute;
-            left: 0;
-            top: 0;
-            right:0;
-            height: 1px;
-            border-top: 1px solid #d5d5d5;
-            transform-origin:  0 0;
-            transform: scaleY(0.5);
-        }
-        .olert .comfirm-button:active {
-            background: #d5d5d5;
-        }
-
-        @keyframes scaleIn {
-            from{
-                opacity: 0;
-                transform: scale(0) translate(-50%,-50%);
-            }
-            to {
-                opacity: 1;
-                transform: scale(1) translate(-50%,-50%);
-            }
-        }
     </style>
+    <link rel="stylesheet" href="./style.css">
 </head>
 
 <body>
-    <button id="button1">你好啊</button>
-    <button id="button2">haha </button>
+    <button id="button1">showLoading</button>
+    <button id="button2">hideLoading</button>
 <script src="./olert.js"></script>
 <script>
     button1.addEventListener('click',()=>{
-        olert.show({content:'你好啊!',tween:'scaleIn',comfirm:function(){console.log('关闭!')}})
+//        olert.show({content:'你好啊!',tween:'scaleIn',confirm:function(){console.log('关闭!')}})
+        olert.showLoading({title:'Loading...'})
+        setTimeout(function(){
+            olert.hideLoading()
+        },3000)
     })
     button2.addEventListener('click',()=>{
-        olert.show({content:'haha!',tween:'scaleIn'})
+//        olert.show({content:'haha!',tween:'scaleIn'})
     })
 </script>
 </body>

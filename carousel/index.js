@@ -24,7 +24,7 @@
                     console.log('右滑')
                     this.pre()
                 }
-                if (_his.diffX < -50) {
+                if (this.diffX < -50) {
                     console.log('左滑')
                     this.next()
                 }
