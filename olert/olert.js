@@ -1,4 +1,12 @@
-!function (win) {
+!function(root,factory){
+    if(typeof define === 'function' && define.amd) {
+        define([],factory)
+    } else if (typeof module === 'object' && module.exports) {
+        module.exports = factory()
+    } else {
+        root.olert = factory()
+    }
+}(this,()=>{
     class Olert {
         constructor () {
             this.wrap = null
@@ -13,7 +21,7 @@
         init () {
             let html = `<div class="olert">
                                 <p class="content"></p>
-                                <div class="comfirm-button">确定</div>
+                                <div class="confirm-button">确定</div>
                             </div>`
             let wrap = document.createElement('div')
             wrap.classList.add('olert-modal')
@@ -22,10 +30,10 @@
             this.wrap = document.querySelector('.olert-modal')
             this.contentWrap = document.querySelector('.olert-modal .content')
             this.olertWrap = document.querySelector('.olert-modal .olert')
-            this.confirmBtn = document.querySelector('.olert-modal .comfirm-button')
+            this.confirmBtn = document.querySelector('.olert-modal .confirm-button')
         }
 
-        show () {
+        show (options) {
             this.contentWrap.innerText = options.content
             this.olertWrap.classList.add(options.tween)
             this.wrap.style.display = 'block'
@@ -39,5 +47,5 @@
             })
         }
     }
-    win.olert = new Olert()
-}(window)
+    return new Olert()
+})
