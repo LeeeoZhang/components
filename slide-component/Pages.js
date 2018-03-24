@@ -1,7 +1,7 @@
 /*
-    移动端fullPage
+    移动端全屏滚动组件
  */
-export default class Pages {
+class Pages {
     constructor (options) {
         this.startX = 0
         this.startY = 0
@@ -49,10 +49,7 @@ export default class Pages {
         //禁止浏览器默认滑动
         document.addEventListener('touchmove', function (event) {
             event.preventDefault()
-        }, {
-            passive: false
         })
-
         this.wrap.addEventListener('touchstart', (event) => {
             this.onTouchStart(event)
         })
@@ -96,7 +93,7 @@ export default class Pages {
     }
 
     //上一页滑动事件处理
-    onSwiperPre () {
+    onSwiperNext () {
         if (this.isAnimate) return
         this.isAnimate = true
         //边界判定
@@ -113,7 +110,7 @@ export default class Pages {
     }
 
     //下一页滑动事件
-    onSwiperNext () {
+    onSwiperPre () {
         if (this.isAnimate) return
         this.isAnimate = true
         if (this.current === 0) {
@@ -142,13 +139,12 @@ export default class Pages {
     }
 
     swiperNext () {
-        let _this = this
         //判断上下滑动还是左右滑动,获取不一样的参数
         let dir = this.direction === 'vertical' ? 'top' : 'left'
         let trans = this.direction === 'vertical' ? 'translateY' : 'translateX'
         //过渡完成时的回调函数，处理页面过渡结束后的页面属性
-        function onTransitionEnd (){
-            this.pageList[this.next].removeEventListener('webkitTransitionEnd',onTransitionEnd)
+        let onTransitionEnd = function () {
+            this.pageList[this.next].removeEventListener('webkitTransitionEnd', onTransitionEnd)
             //重置滑动距离,避免点击翻页
             this.resetMove()
             this.current = this.next
@@ -158,41 +154,41 @@ export default class Pages {
             this.isAnimate = false
             //切换class
             this.changeClass()
-            this.cb && cb.call(_this)
-            this.pageList[(this.current - 1) < 0 ? (this.totalPages - 1):(this.current - 1)].style.transition = ''
-            this.pageList[(this.current - 1) < 0 ? (this.totalPages - 1):(this.current - 1)].style.transform = ''
-        }
+            this.cb && cb.call(this)
+            this.pageList[(this.current - 1) < 0 ? (this.totalPages - 1) : (this.current - 1)].style.transition = ''
+            this.pageList[(this.current - 1) < 0 ? (this.totalPages - 1) : (this.current - 1)].style.transform = ''
+        }.bind(this)
         //将要过渡的页面提前放在屏幕外面
         this.pageList[this.next].style[dir] = '100%'
+        //设置过渡属性
         this.pageList[this.next].style.zIndex = this.zIndex
         this.pageList[this.next].style.transition = 'transform ease 0.5s'
         this.pageList[this.next].style.transform = `${trans}(-100%)`
-        this.pageList[this.next].addEventListener('webkitTransitionEnd',onTransitionEnd)
+        this.pageList[this.next].addEventListener('webkitTransitionEnd', onTransitionEnd)
     }
 
     swiperPre () {
-        let _this = this
         let dir = this.direction === 'vertical' ? 'top' : 'left'
         let trans = this.direction === 'vertical' ? 'translateY' : 'translateX'
-        function onTransitionEnd (){
-            this.pageList[this.current - 1].removeEventListener('webkitTransitionEnd',onTransitionEnd)
+        let onTransitionEnd = function () {
+            this.pageList[this.current - 1].removeEventListener('webkitTransitionEnd', onTransitionEnd)
             //重置滑动距离,避免点击即可翻页
             this.resetMove()
             this.next = this.current
-            this.current = _this.current - 1
+            this.current = this.current - 1
             //递增zIndex,让每次过渡的页面层级都是最高的
             this.zIndex++
             this.isAnimate = false
             //切换class
             this.changeClass()
             this.cb && cb.call(this)
-            this.pageList[(this.current + 1) >= this.totalPages ? 0:(this.current + 1)].style.transition = ''
-            _his.pageList[(this.current + 1) >= this.totalPages ? 0:(this.current + 1)].style.transform = ''
-        }
+            this.pageList[(this.current + 1) >= this.totalPages ? 0 : (this.current + 1)].style.transition = ''
+            this.pageList[(this.current + 1) >= this.totalPages ? 0 : (this.current + 1)].style.transform = ''
+        }.bind(this)
         this.pageList[this.current - 1].style[dir] = '-100%'
         this.pageList[this.current - 1].style.zIndex = this.zIndex
         this.pageList[this.current - 1].style.transition = 'transform ease 0.5s'
         this.pageList[this.current - 1].style.transform = `${trans}(100%)`
-        this.pageList[this.current - 1].addEventListener('webkitTransitionEnd',onTransitionEnd)
+        this.pageList[this.current - 1].addEventListener('webkitTransitionEnd', onTransitionEnd)
     }
 }

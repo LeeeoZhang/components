@@ -63,11 +63,12 @@
         let pageList = document.querySelectorAll('.page')
 
         //new一个新Pages
-        let pages = new Full({
-            wrap1: body,
+        let pages = new Pages({
+            wrap: body,
             pageList: pageList,
             loop: true,
-            direction: 'horizontal'
+            //direction: 'horizontal',
+            direction: 'vertical',
         })
     </script>
 </body>
