@@ -66,6 +66,5 @@
             this.loadingWrap.style.display = 'none'
         }
     }
-
     return new Olert()
 })
