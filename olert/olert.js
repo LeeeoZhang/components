@@ -6,7 +6,7 @@
     } else {
         root.olert = factory()
     }
-}(this, () => {
+}(window, () => {
     class Olert {
         constructor () {
             this.wrap = null
@@ -17,6 +17,15 @@
             this.loadingWrap = null
             this.init()
             this.bind()
+        }
+
+
+        $ (selector){
+            return document.querySelector(selector)
+        }
+
+        $$ (selector) {
+            return document.querySelectorAll(selector)
         }
 
         init () {
@@ -36,11 +45,11 @@
             loadingWrap.innerHTML = loadingHtml
             document.body.appendChild(modalWrap)
             document.body.appendChild(loadingWrap)
-            this.wrap = document.querySelector('.olert-modal')
-            this.contentWrap = document.querySelector('.olert-modal .content')
-            this.olertWrap = document.querySelector('.olert-modal .olert')
-            this.confirmBtn = document.querySelector('.olert-modal .confirm-button')
-            this.loadingWrap = document.querySelector('.loading-modal')
+            this.wrap = this.$('.olert-modal')
+            this.contentWrap = this.$('.olert-modal .content')
+            this.olertWrap = this.$('.olert-modal .olert')
+            this.confirmBtn = this.$('.olert-modal .confirm-button')
+            this.loadingWrap = this.$('.loading-modal')
         }
 
         show (options) {
@@ -58,7 +67,7 @@
         }
 
         showLoading (options) {
-            document.querySelector('.loading-modal .loading-text').innerText = options.title || '加载中...'
+            this.$('.loading-modal .loading-text').innerText = options.title || '加载中...'
             this.loadingWrap.style.display = 'block'
         }
 

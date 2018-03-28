@@ -210,6 +210,5 @@
             Object.assign(this.pageList[this.current - 1].style,config)
         }
     }
-
     return Pages
 })
