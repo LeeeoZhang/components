@@ -169,13 +169,17 @@
                 this.pageList[(this.current - 1) < 0 ? (this.totalPages - 1) : (this.current - 1)].style.transition = ''
                 this.pageList[(this.current - 1) < 0 ? (this.totalPages - 1) : (this.current - 1)].style.transform = ''
             }.bind(this)
-            //将要过渡的页面提前放在屏幕外面
-            this.pageList[this.next].style[dir] = '100%'
-            //设置过渡属性
-            this.pageList[this.next].style.zIndex = this.zIndex
-            this.pageList[this.next].style.transition = 'transform ease 0.5s'
-            this.pageList[this.next].style.transform = `${trans}(-100%)`
+            //过渡时的属性配置
+            let config = {
+                //将要过渡的页面提前放在屏幕外面
+                [dir]:'100%',
+                //设置过渡属性
+                zIndex: this.zIndex,
+                transition:'transform ease 0.5s',
+                transform:`${trans}(-100%)`,
+            }
             this.pageList[this.next].addEventListener('webkitTransitionEnd', onTransitionEnd)
+            Object.assign(this.pageList[this.next].style,config)
         }
 
         swiperPre () {
@@ -196,11 +200,14 @@
                 this.pageList[(this.current + 1) >= this.totalPages ? 0 : (this.current + 1)].style.transition = ''
                 this.pageList[(this.current + 1) >= this.totalPages ? 0 : (this.current + 1)].style.transform = ''
             }.bind(this)
-            this.pageList[this.current - 1].style[dir] = '-100%'
-            this.pageList[this.current - 1].style.zIndex = this.zIndex
-            this.pageList[this.current - 1].style.transition = 'transform ease 0.5s'
-            this.pageList[this.current - 1].style.transform = `${trans}(100%)`
+            let config = {
+                [dir]:'-100%',
+                zIndex:this.zIndex,
+                transition:'transform ease 0.5s',
+                transform:`${trans}(100%)`
+            }
             this.pageList[this.current - 1].addEventListener('webkitTransitionEnd', onTransitionEnd)
+            Object.assign(this.pageList[this.current - 1].style,config)
         }
     }
 
