@@ -67,8 +67,11 @@
             wrap: body,
             pageList: pageList,
             loop: true,
-            //direction: 'horizontal',
-            direction: 'vertical',
+            direction: 'horizontal',
+            //direction: 'vertical',
+            onTransitionEnd:function(){
+                console.log(this.current)
+            }
         })
     </script>
 </body>

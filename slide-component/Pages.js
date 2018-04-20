@@ -25,7 +25,8 @@
             this.pageList = options.pageList
             this.totalPages = this.pageList.length
             this.loop = options.loop
-            this.cb = options.cb
+            this.onTransitionEnd = options.onTransitionEnd
+            this.onInitEnd = options.onInitEnd
             this.duration = options.duration || 300
             this.easing = options.easing || 'linear'
             this.direction = options.direction || 'vertical'
@@ -42,6 +43,7 @@
                 this.pageList[0].style.transform = 'translateX(-100%)'
                 this.pageList[0].classList.add('active')
             }
+            this.onInitEnd && this.onInitEnd.call(this)
         }
 
         setPagePos () {
@@ -102,7 +104,7 @@
             }
         }
 
-        //上一页滑动事件处理
+        //下一页滑动事件处理
         onSwiperNext () {
             if (this.isAnimate) return
             this.isAnimate = true
@@ -116,10 +118,10 @@
                     return
                 }
             }
-            this.swiperNext()
+            this.swiper(0)
         }
 
-        //下一页滑动事件
+        //上一页滑动事件
         onSwiperPre () {
             if (this.isAnimate) return
             this.isAnimate = true
@@ -132,7 +134,7 @@
                     return
                 }
             }
-            this.swiperPre()
+            this.swiper(1)
         }
 
         changeClass () {
@@ -148,66 +150,51 @@
             this.moveY = 0
         }
 
-        swiperNext () {
+        //tag=0下一页，tag=1上一页
+        swiper (tag) {
             //判断上下滑动还是左右滑动,获取不一样的参数
             let dir = this.direction === 'vertical' ? 'top' : 'left'
             let trans = this.direction === 'vertical' ? 'translateY' : 'translateX'
             //过渡完成时的回调函数，处理页面过渡结束后的页面属性
             //bind绑定函数this指向pages实例
             let onTransitionEnd = function () {
-                this.pageList[this.next].removeEventListener('webkitTransitionEnd', onTransitionEnd)
+                this.pageList[tag ? this.current - 1 : this.next].removeEventListener('webkitTransitionEnd', onTransitionEnd)
                 //重置滑动距离,避免点击翻页
                 this.resetMove()
-                this.current = this.next
-                this.next += 1
+                //调整页码
+                if(tag) {
+                    this.next = this.current
+                    this.current = this.current - 1
+                } else {
+                    this.current = this.next
+                    this.next += 1
+                }
                 //递增zIndex,让每次过渡的页面层级都是最高的
                 this.zIndex++
                 this.isAnimate = false
                 //切换class
                 this.changeClass()
-                this.cb && cb.call(this)
-                this.pageList[(this.current - 1) < 0 ? (this.totalPages - 1) : (this.current - 1)].style.transition = ''
-                this.pageList[(this.current - 1) < 0 ? (this.totalPages - 1) : (this.current - 1)].style.transform = ''
+                this.onTransitionEnd && this.onTransitionEnd.call(this)
+                //删除过渡时属性
+                if(tag) {
+                    this.pageList[(this.current + 1) >= this.totalPages ? 0 : (this.current + 1)].style.transition = ''
+                    this.pageList[(this.current + 1) >= this.totalPages ? 0 : (this.current + 1)].style.transform = ''
+                } else {
+                    this.pageList[(this.current - 1) < 0 ? (this.totalPages - 1) : (this.current - 1)].style.transition = ''
+                    this.pageList[(this.current - 1) < 0 ? (this.totalPages - 1) : (this.current - 1)].style.transform = ''
+                }
             }.bind(this)
             //过渡时的属性配置
             let config = {
                 //将要过渡的页面提前放在屏幕外面
-                [dir]:'100%',
+                [dir]: tag ? '-100%' : '100%',
                 //设置过渡属性
                 zIndex: this.zIndex,
                 transition:'transform ease 0.5s',
-                transform:`${trans}(-100%)`,
+                transform: tag ? `${trans}(100%)` : `${trans}(-100%)`,
             }
-            this.pageList[this.next].addEventListener('webkitTransitionEnd', onTransitionEnd)
-            Object.assign(this.pageList[this.next].style,config)
-        }
-
-        swiperPre () {
-            let dir = this.direction === 'vertical' ? 'top' : 'left'
-            let trans = this.direction === 'vertical' ? 'translateY' : 'translateX'
-            let onTransitionEnd = function () {
-                this.pageList[this.current - 1].removeEventListener('webkitTransitionEnd', onTransitionEnd)
-                //重置滑动距离,避免点击即可翻页
-                this.resetMove()
-                this.next = this.current
-                this.current = this.current - 1
-                //递增zIndex,让每次过渡的页面层级都是最高的
-                this.zIndex++
-                this.isAnimate = false
-                //切换class
-                this.changeClass()
-                this.cb && cb.call(this)
-                this.pageList[(this.current + 1) >= this.totalPages ? 0 : (this.current + 1)].style.transition = ''
-                this.pageList[(this.current + 1) >= this.totalPages ? 0 : (this.current + 1)].style.transform = ''
-            }.bind(this)
-            let config = {
-                [dir]:'-100%',
-                zIndex:this.zIndex,
-                transition:'transform ease 0.5s',
-                transform:`${trans}(100%)`
-            }
-            this.pageList[this.current - 1].addEventListener('webkitTransitionEnd', onTransitionEnd)
-            Object.assign(this.pageList[this.current - 1].style,config)
+            this.pageList[tag ? this.current - 1 : this.next].addEventListener('webkitTransitionEnd', onTransitionEnd)
+            Object.assign(this.pageList[tag ? this.current - 1 : this.next].style,config)
         }
     }
     return Pages

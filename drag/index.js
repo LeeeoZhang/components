@@ -38,8 +38,11 @@
                 this.setPosition(this.initPos.x + this.diff.x, this.initPos.y + this.diff.y)
             })
             this.target.addEventListener('touchend', () => {
+                //每次拖拽完成，都要记录当前的位置，作为下一次拖拽的起始坐标，否则会出现跳动
                 this.initPos.x += this.diff.x
                 this.initPos.y += this.diff.y
+                //重置变量
+                this.startPos.x = this.startPos.y = this.diff.x = this.diff.y = 0
             })
         }
 
