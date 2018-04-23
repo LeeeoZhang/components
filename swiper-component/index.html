@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Slide</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            -webkit-tap-highlight-color: transparent;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .page {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            font-size: 30px;
+            font-weight: bold;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .page:nth-child(even) {
+            background: #000;
+            color: #fff;
+        }
+
+        .page:nth-child(odd) {
+            background: #fff;
+            color: #000;
+        }
+    </style>
+    <script src="./anime.min.js"></script>
+    <script src="./velocity.min.js"></script>
+</head>
+<body>
+    <div class="page page1">0</div>
+    <div class="page page2">1</div>
+    <div class="page page3">2</div>
+    <div class="page page4">3</div>
+    <div class="page page5">4</div>
+    <div class="page page6">5</div>
+    <div class="page page7">6</div>
+    <div class="page page8">7</div>
+    <div class="page page9">8</div>
+    <div class="page page10">9</div>
+    <script src="./Pages.js"></script>
+    <script>
+        let body = document.querySelector('body')
+        let pageList = document.querySelectorAll('.page')
+
+        //new一个新Pages
+        let pages = new Pages({
+            wrap: body,
+            pageList: pageList,
+            loop: true,
+            direction: 'horizontal',
+            //direction: 'vertical',
+            onTransitionEnd:function(){
+                console.log(this.current)
+            }
+        })
+    </script>
+</body>
+</html>
