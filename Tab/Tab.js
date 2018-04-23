@@ -1,17 +1,17 @@
 //封装
 let Tab = (function() {
-    function bind(tabContainer,contentContainer) {
-        let tabItems = tabContainer.querySelectorAll('li')                  //bind()从外部无法被访问
+    function bind(tabContainer, contentContainer) {
+        let tabItems = tabContainer.querySelectorAll('li') //bind()从外部无法被访问
         let contentItems = contentContainer.querySelectorAll('li')
-        tabContainer.addEventListener('click', function (e) {
+        tabContainer.addEventListener('click', function(e) {
             let clickTarget = e.target
             if (clickTarget.tagName.toLowerCase() === 'li') {
-                tabItems.forEach(function (item, index) {
+                tabItems.forEach(function(item, index) {
                     item.classList.remove('active')
                 })
                 clickTarget.classList.add('active')
                 let targetIndex = [].indexOf.call(tabItems, clickTarget)
-                contentItems.forEach(function (item, index) {
+                contentItems.forEach(function(item, index) {
                     item.classList.remove('show')
                 })
                 contentItems[targetIndex].classList.add('show')
@@ -19,34 +19,13 @@ let Tab = (function() {
         })
     }
     return {
-        init: function(tabContainer,contentContainer) {
-            bind(tabContainer,contentContainer)
+        init: function(tabContainer, contentContainer) {
+            bind(tabContainer, contentContainer)
         }
     }
 })()
-Tab.init(document.querySelectorAll('.tab-container>.tab')[0],document.querySelectorAll('.tab-container>.content')[0])
-Tab.init(document.querySelectorAll('.tab-container>.tab')[1],document.querySelectorAll('.tab-container>.content')[1])
-
-//不知道什么写法。。
-// let tabContainer = document.querySelector('.tab-container>.tab')
-// let contentContainer = document.querySelector('#tab-container>.content')
-// let tabItems = tabContainer.querySelectorAll('li')
-// let contentItems = contentContainer.querySelectorAll('li')
-//
-// tabContainer.addEventListener('click',function(e) {
-//     let clickTarget = e.target
-//     if(clickTarget.tagName.toLowerCase() === 'li') {
-//         tabItems.forEach(function(item,index) {
-//             item.classList.remove('active')
-//         })
-//         clickTarget.classList.add('active')
-//         let targetIndex = [].indexOf.call(tabItems,clickTarget)
-//         contentItems.forEach(function(item,index) {
-//             item.classList.remove('show')
-//         })
-//         contentItems[targetIndex].classList.add('show')
-//     }
-// })
+Tab.init(document.querySelectorAll('.tab-container>.tab')[0], document.querySelectorAll('.tab-container>.content')[0])
+Tab.init(document.querySelectorAll('.tab-container>.tab')[1], document.querySelectorAll('.tab-container>.content')[1])
 
 
 
@@ -78,5 +57,3 @@ Tab.init(document.querySelectorAll('.tab-container>.tab')[1],document.querySelec
 //
 // new Tab(document.querySelectorAll('.tab-container>.tab')[0],document.querySelectorAll('.tab-container>.content')[0])
 // new Tab(document.querySelectorAll('.tab-container>.tab')[1],document.querySelectorAll('.tab-container>.content')[1])
-
-
