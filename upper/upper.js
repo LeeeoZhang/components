@@ -1,4 +1,11 @@
-! function (root, factory) {
+
+/*
+* 图片上传组件
+* @param {object} options 自定义配置
+*
+* */
+
+!function (root, factory) {
 	if (typeof define === 'function' && define.amd) {
 		define([], factory)
 	} else if (typeof module === 'object' && module.exports) {
@@ -14,9 +21,6 @@
 			this.maxSize = options.maxSize || 1024 * 30
 			//文件信息
 			this.fileInfo = {}
-			//blobURL和blob的处理函数
-			this.onBlobURL = options.onBlobURL
-			this.onBlob = options.onBlob
 			//压缩系数
 			this.encoderOptions = null
 			this.init()
@@ -30,26 +34,26 @@
 			this.upperInput.addEventListener('change', (event) => {
 				const file = event.target.files[0]
 				const reader = new FileReader()
-				const _this = this
 				//记录文件相关信息
 				this.fileInfo.type = file.type || 'image/jpeg'
 				this.fileInfo.size = file.size
 				this.fileInfo.name = file.name
 				this.fileInfo.lastModifiedDate = file.lastModifiedDate
 				//把文件转换成base64进行处理
-				reader.onload = function (event) {
+				reader.onload =  (event) => {
+					//base64格式文件
 					const result = event.target.result
-					console.log(_this.fileInfo)
-					if (_this.fileInfo.size > _this.maxSize) {
-						_this.compressImage(result).then(compressBase64 => _this.toBlob(compressBase64)).then(blobData => {
+					//判断是否进行压缩
+					if (this.fileInfo.size > this.maxSize) {
+						this.compressImage(result).then(compressBase64 => this.toBlob(compressBase64)).then(fileInfo => {
 							console.log('压缩了')
-							console.log(blobData)
-							this.onBlobURL && this.onBlobURL.call(this,blobData.blobURL)
+							//fileInfo包含了文件的blob、blobURL以及其他信息
+							console.log(fileInfo)
 						})
 					} else {
-						_this.toBlob(result).then(blobData => {
+						this.toBlob(result).then(fileInfo => {
 							console.log('没压缩')
-							console.log(blobData)
+							console.log(fileInfo)
 						})
 					}
 				}
@@ -61,8 +65,7 @@
 			const encoderOptions = this.encoderOptions || 0.5
 			return new Promise((resolve, reject) => {
 				const image = new Image()
-				const _this = this
-				image.onload = function () {
+				image.onload =  () => {
 					const canvas = document.createElement('canvas')
 					const ctx = canvas.getContext('2d')
 					const IMG_WIDTH = image.width
@@ -92,7 +95,9 @@
 				try {
 					blob = new Blob([uint8],{type:this.fileInfo.type})
 					blobURL = URL.createObjectURL(blob)
-					resolve({blob,blobURL})
+					this.fileInfo.file = blob
+					this.fileInfo.fileURL = blobURL
+					resolve(this.fileInfo)
 				} catch (error) {
 					//兼容处理
 					window.BlobBuilder = window.BlobBuilder || window.WebKitBlobBuilder || window.MozBlobBuilder || window.MSBlobBuilder
@@ -101,7 +106,9 @@
 						builder.append(uint8)
 						blob = builder.getBolb(this.fileInfo.type)
 						blobURL = URL.createObjectURL(blob)
-						resolve({blob,blobURL})
+                        this.fileInfo.file = blob
+                        this.fileInfo.fileURL = blobURL
+                        resolve(this.fileInfo)
 					} else {
 						console.log('不支持图片上传')
                         reject()
