@@ -20,7 +20,7 @@
 			//压缩限制,超过限制进行压缩
 			this.maxSize = options.maxSize || 1024 * 30
 			//文件信息
-			this.fileInfo = {}
+			this.fileInfoes = []
 			//压缩系数
 			this.encoderOptions = null
 			this.init()
@@ -32,32 +32,48 @@
 
 		bind() {
 			this.upperInput.addEventListener('change', (event) => {
-				const file = event.target.files[0]
+				const files = event.target.files
 				const reader = new FileReader()
-				//记录文件相关信息
-				this.fileInfo.type = file.type || 'image/jpeg'
-				this.fileInfo.size = file.size
-				this.fileInfo.name = file.name
-				this.fileInfo.lastModifiedDate = file.lastModifiedDate
-				//把文件转换成base64进行处理
-				reader.onload =  (event) => {
-					//base64格式文件
-					const result = event.target.result
-					//判断是否进行压缩
-					if (this.fileInfo.size > this.maxSize) {
-						this.compressImage(result).then(compressBase64 => this.toBlob(compressBase64)).then(fileInfo => {
-							console.log('压缩了')
-							//fileInfo包含了文件的blob、blobURL以及其他信息
-							console.log(fileInfo)
-						})
-					} else {
-						this.toBlob(result).then(fileInfo => {
-							console.log('没压缩')
-							console.log(fileInfo)
-						})
+				let count = 0,fileLength = files.length
+                //把文件转换成base64进行处理
+                reader.onload =  (event) => {
+                    //base64格式文件
+                    const result = event.target.result
+                    //判断是否进行压缩
+                    if (this.fileInfoes[count].size > this.maxSize) {
+                        this.compressImage(result).then(compressBase64 => this.toBlob(compressBase64,count)).then(blobInfo => {
+                            console.log('压缩了')
+                            //blobInfo包含了文件的blob、blobURL以及其他信息
+                            this.fileInfoes[count].blobInfo = blobInfo
+							//多个文件计数
+							count++
+							//看是否还有文件
+							this.isEnd(count,fileLength,reader)
+                        }).catch(()=>{})
+                    } else {
+                        this.toBlob(result,count).then(blobInfo => {
+                            console.log('没压缩')
+                            this.fileInfoes[count].blobInfo = blobInfo
+							count++
+							this.isEnd(count,fileLength,reader)
+                        }).catch(()=>{})
+                    }
+                }
+				Array.prototype.forEach.call(files,(file)=>{
+					if(!(/(^image\/jpe?g$)|(^image\/png$)/).test(file.type)) {
+						console.log('请选择正确格式的文件')
+						return
 					}
-				}
-				reader.readAsDataURL(file)
+					const fileInfo = {}
+                    //记录文件相关信息
+					fileInfo.file = file
+                    fileInfo.type = file.type
+                    fileInfo.size = file.size
+                    fileInfo.name = file.name
+                    fileInfo.lastModifiedDate = file.lastModifiedDate
+					this.fileInfoes.push(fileInfo)
+				})
+                reader.readAsDataURL(this.fileInfoes[count].file)
 			})
 		}
 
@@ -81,7 +97,7 @@
 			})
 		}
 
-		toBlob(base64) {
+		toBlob(base64,index) {
 			//解码base64
 			const decodedData = window.atob(base64.split(',')[1])
 			const arrayBuffer = new ArrayBuffer(decodedData.length)
@@ -93,11 +109,10 @@
 					uint8[i] = decodedData.charCodeAt(i)
 				}
 				try {
-					blob = new Blob([uint8],{type:this.fileInfo.type})
+					blob = new Blob([uint8],{type:this.fileInfoes[index].type})
 					blobURL = URL.createObjectURL(blob)
-					this.fileInfo.file = blob
-					this.fileInfo.fileURL = blobURL
-					resolve(this.fileInfo)
+					let blobInfo = {blob,blobURL}
+					resolve(blobInfo)
 				} catch (error) {
 					//兼容处理
 					window.BlobBuilder = window.BlobBuilder || window.WebKitBlobBuilder || window.MozBlobBuilder || window.MSBlobBuilder
@@ -106,9 +121,8 @@
 						builder.append(uint8)
 						blob = builder.getBolb(this.fileInfo.type)
 						blobURL = URL.createObjectURL(blob)
-                        this.fileInfo.file = blob
-                        this.fileInfo.fileURL = blobURL
-                        resolve(this.fileInfo)
+                        let blobInfo = {blob,blobURL}
+                        resolve(blobInfo)
 					} else {
 						console.log('不支持图片上传')
                         reject()
@@ -117,6 +131,15 @@
 			})
 		}
 
+		//判断文件是否处理完毕
+		isEnd (count,length,reader) {
+            if (count === length) {
+            	console.log('结束')
+                console.log(this.fileInfoes)
+            } else {
+                reader.readAsDataURL(this.fileInfoes[count].file)
+            }
+        }
 	}
 	return Upper
 })
