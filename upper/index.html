@@ -65,8 +65,13 @@
 		function $(selector) {
 			return document.querySelector(selector)
 		}
-		new Upper({
-			upperInput: $('.upper-input')
+		function onFileInfo(fileInfoes) {
+		    console.log(fileInfoes)
+			console.log(upper)
+		}
+		const upper =  new Upper({
+			upperInput: $('.upper-input'),
+			onComplete: onFileInfo,
 		})
 	</script>
 </body>

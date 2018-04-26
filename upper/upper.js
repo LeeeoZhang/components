@@ -23,6 +23,8 @@
 			this.fileInfoes = []
 			//压缩系数
 			this.encoderOptions = null
+			//文件处理完成回调
+			this.onComplete = options.onComplete
 			this.init()
 		}
 
@@ -40,27 +42,27 @@
                     //base64格式文件
                     const result = event.target.result
                     //判断是否进行压缩
+					console.log(this.fileInfoes[count])
                     if (this.fileInfoes[count].size > this.maxSize) {
                         this.compressImage(result).then(compressBase64 => this.toBlob(compressBase64,count)).then(blobInfo => {
                             console.log('压缩了')
-                            //blobInfo包含了文件的blob、blobURL以及其他信息
+                            //blobInfo包含了文件的blob、blobURL
                             this.fileInfoes[count].blobInfo = blobInfo
 							//多个文件计数
-							count++
-							//看是否还有文件
+                            count++
 							this.isEnd(count,fileLength,reader)
                         }).catch(()=>{})
                     } else {
                         this.toBlob(result,count).then(blobInfo => {
                             console.log('没压缩')
                             this.fileInfoes[count].blobInfo = blobInfo
-							count++
+                            count++
 							this.isEnd(count,fileLength,reader)
                         }).catch(()=>{})
                     }
                 }
 				Array.prototype.forEach.call(files,(file)=>{
-					if(!(/(^image\/jpe?g$)|(^image\/png$)/).test(file.type)) {
+					if(!(/(^image\/jpe?g$)|(^image\/png$)|(^image\/gif$)/).test(file.type)) {
 						console.log('请选择正确格式的文件')
 						return
 					}
@@ -115,6 +117,7 @@
 					resolve(blobInfo)
 				} catch (error) {
 					//兼容处理
+					console.log(error)
 					window.BlobBuilder = window.BlobBuilder || window.WebKitBlobBuilder || window.MozBlobBuilder || window.MSBlobBuilder
 					if (error.name === 'TypeError' && window.BlobBuilder) {
 						const builder = new BlobBuilder()
@@ -131,11 +134,11 @@
 			})
 		}
 
-		//判断文件是否处理完毕
+		//检查文件是否处理完毕
 		isEnd (count,length,reader) {
             if (count === length) {
             	console.log('结束')
-                console.log(this.fileInfoes)
+				this.onComplete && this.onComplete.call(this,this.fileInfoes)
             } else {
                 reader.readAsDataURL(this.fileInfoes[count].file)
             }
