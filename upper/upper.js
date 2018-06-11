@@ -2,7 +2,7 @@
 *
 * 图片上传组件
 * @param {object} options 自定义配置
-* 
+*
 * */
 
 !function (root, factory) {
@@ -26,11 +26,11 @@
             this.encoderOptions = null
             //文件处理完成回调
             this.onComplete = options.onComplete
-            this.init()
             //文件数
             this.fileLength = 0
             this.reader = null
             this.count = 0
+            this.init()
         }
 
         init () {
@@ -38,9 +38,10 @@
         }
 
         bind () {
+            this.reader = new FileReader()
+            this.reader.onload = this.onReadAsDataUrl.bind(this)
             this.upperInput.addEventListener('change', (event) => {
                 const files = event.target.files
-                this.reader = new FileReader()
                 this.fileLength = files.length
                 //把文件转换成base64进行处理
                 Array.prototype.forEach.call(files, file => {
@@ -57,16 +58,16 @@
                     fileInfo.lastModifiedDate = file.lastModifiedDate
                     this.fileInfoes.push(fileInfo)
                 })
+                console.log(this)
                 this.reader.readAsDataURL(this.fileInfoes[this.count].file)
             })
-            this.reader.onload = this.onReadAsDataUrl
         }
 
         onReadAsDataUrl (event) {
             //base64格式文件
             const result = event.target.result
             //判断是否进行压缩
-            console.log(this.fileInfoes[count])
+            console.log(this.fileInfoes[this.count])
             if (this.fileInfoes[this.count].size > this.maxSize) {
                 this.compressImage(result).then(compressBase64 => this.toBlob(compressBase64, this.count)).then(blobInfo => {
                     console.log('压缩了')
@@ -74,14 +75,14 @@
                     this.fileInfoes[this.count].blobInfo = blobInfo
                     //多个文件计数
                     this.count++
-                    this.isEnd(this.count, this.fileLength, this.reader)
+                    this.isEnd()
                 }).catch(() => {})
             } else {
                 this.toBlob(result, this.count).then(blobInfo => {
                     console.log('没压缩')
-                    this.fileInfoes[count].blobInfo = blobInfo
+                    this.fileInfoes[this.count].blobInfo = blobInfo
                     this.count++
-                    this.isEnd(this.count, this.fileLength, this.reader)
+                    this.isEnd()
                 }).catch(() => {})
             }
         }
@@ -142,13 +143,13 @@
         }
 
         //检查文件是否处理完毕
-        isEnd (count, length, reader) {
-            if (count === length) {
+        isEnd () {
+            if (this.count === this.length) {
                 console.log('结束')
                 this.count  = 0
                 this.onComplete && this.onComplete.call(this, this.fileInfoes)
             } else {
-                reader.readAsDataURL(this.fileInfoes[count].file)
+                this.reader.readAsDataURL(this.fileInfoes[this.count].file)
             }
         }
 
