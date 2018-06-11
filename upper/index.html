@@ -52,6 +52,10 @@
 			width: 150px;
 			height: 150px;
 		}
+		.display > li >img {
+			width: 100%;
+			height: 100%;
+		}
 	</style>
 </head>
 <body>
@@ -68,6 +72,14 @@
 		function onFileInfo(fileInfoes) {
 		    console.log(fileInfoes)
 			console.log(upper)
+			const fragment = document.createDocumentFragment()
+			fileInfoes.forEach(item =>{
+				const li = document.createElement('li')
+				li.innerHTML = `<img src="${item.blobInfo.blobURL}">`
+				fragment.append(li)
+			})
+			console.log(fragment)
+			$('.display').append(fragment)
 		}
 		const upper =  new Upper({
 			upperInput: $('.upper-input'),

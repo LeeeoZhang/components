@@ -16,10 +16,14 @@
 }(window, () => {
 
     class Upper {
+
         constructor (options) {
             this.upperInput = options.upperInput
+            this.auto = options.auto
             //压缩限制,超过限制进行压缩
             this.maxSize = options.maxSize || 1024 * 30
+            //最大同时上传数
+            this.maxUploadSize = options.maxUploadSize || 3
             //文件信息
             this.fileInfoes = []
             //压缩系数
@@ -62,6 +66,7 @@
                 this.reader.readAsDataURL(this.fileInfoes[this.count].file)
             })
         }
+
         //reader回调
         onReadAsDataUrl (event) {
             //base64格式文件
@@ -90,6 +95,7 @@
                 })
             }
         }
+
         //图片压缩
         compressImage (base64) {
             const encoderOptions = this.encoderOptions || 0.5
@@ -113,6 +119,7 @@
                 image.src = base64
             })
         }
+
         //base64转blob
         base64ToBlob (base64, index) {
             //解码base64
@@ -120,7 +127,8 @@
             const arrayBuffer = new ArrayBuffer(decodedData.length)
             const uint8 = new Uint8Array(arrayBuffer)
             const URL = window.URL || window.webkitURL || window.mozURL
-            let blob = '', blobURL = ''
+            let blob = null
+            let blobURL = null
             return new Promise((resolve, reject) => {
                 for (let i = 0; i < decodedData.length; i++) {
                     uint8[i] = decodedData.charCodeAt(i)
@@ -154,12 +162,20 @@
             if (this.count === this.fileLength) {
                 console.log('结束')
                 this.count = 0
+                if(this.auto) this.upload()
                 this.onComplete && this.onComplete.call(this, this.fileInfoes)
             } else {
                 this.reader.readAsDataURL(this.fileInfoes[this.count].file)
             }
         }
 
+        //上传文件
+        async upload () {
+            const formData = new FormData()
+            const xhr = new XMLHttpRequest()
+            
+
+        }
     }
 
     return Upper
