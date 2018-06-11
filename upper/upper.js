@@ -25,16 +25,18 @@
             //最大同时上传数
             this.maxUploadSize = options.maxUploadSize || 3
             //文件信息
-            this.fileInfoes = []
+            this.fileList = []
             //压缩系数
             this.encoderOptions = null
             //文件处理完成回调
             this.onComplete = options.onComplete
             this.eachFileComplete = options.eachFileComplete
-            //文件数
-            this.fileLength = 0
             this.reader = null
             this.count = 0
+            //每一轮上传的图片个数
+            this.currentCount = 0
+            //当前待处理的图片
+            this.currenList = []
             this.init()
         }
 
@@ -47,7 +49,8 @@
             this.reader.onload = this.onReadAsDataUrl.bind(this)
             this.upperInput.addEventListener('change', event => {
                 const files = event.target.files
-                this.fileLength = files.length
+                this.currentCount = files.length
+                if(this.currentCount === 0) return
                 Array.prototype.forEach.call(files, file => {
                     if (!(/(^image\/jpe?g$)|(^image\/png$)|(^image\/gif$)/).test(file.type)) {
                         console.log('请选择正确格式的文件')
@@ -59,11 +62,11 @@
                         fileInfo.size = file.size
                         fileInfo.name = file.name
                         fileInfo.lastModifiedDate = file.lastModifiedDate
-                        this.fileInfoes.push(fileInfo)
+                        this.currenList.push(fileInfo)
                     }
                 })
                 //把文件转换成base64进行处理
-                this.reader.readAsDataURL(this.fileInfoes[this.count].file)
+                this.reader.readAsDataURL(this.currenList[this.count].file)
             })
         }
 
@@ -72,13 +75,13 @@
             //base64格式文件
             const result = event.target.result
             //判断是否进行压缩
-            console.log(this.fileInfoes[this.count])
-            if (this.fileInfoes[this.count].size > this.maxSize) {
+            console.log(this.currenList[this.count])
+            if (this.currenList[this.count].size > this.maxSize) {
                 this.compressImage(result).then(compressBase64 => this.base64ToBlob(compressBase64, this.count)).then(blobInfo => {
                     console.log('压缩了')
                     //blobInfo包含了文件的blob、blobURL
-                    this.fileInfoes[this.count].blobInfo = blobInfo
-                    this.eachFileComplete && this.eachFileComplete(this.fileInfoes[this.count])
+                    this.currenList[this.count].blobInfo = blobInfo
+                    this.eachFileComplete && this.eachFileComplete(this.currenList[this.count])
                     //多个文件计数
                     this.count++
                     this.isEnd()
@@ -87,8 +90,8 @@
             } else {
                 this.base64ToBlob(result, this.count).then(blobInfo => {
                     console.log('没压缩')
-                    this.fileInfoes[this.count].blobInfo = blobInfo
-                    this.eachFileComplete && this.eachFileComplete(this.fileInfoes[this.count])
+                    this.currenList[this.count].blobInfo = blobInfo
+                    this.eachFileComplete && this.eachFileComplete(this.currenList[this.count])
                     this.count++
                     this.isEnd()
                 }).catch(() => {
@@ -109,7 +112,7 @@
                     canvas.height = image.height
                     ctx.drawImage(image, 0, 0, image.width, image.height)
                     //png格式图片压缩无效
-                    if (/^image\/jpe?g$/.test(this.fileInfoes[this.count].type)) {
+                    if (/^image\/jpe?g$/.test(this.currenList[this.count].type)) {
                         compressBase64 = canvas.toDataURL('image/jpeg', encoderOptions)
                     } else {
                         compressBase64 = base64
@@ -134,7 +137,7 @@
                     uint8[i] = decodedData.charCodeAt(i)
                 }
                 try {
-                    blob = new Blob([uint8], {type: this.fileInfoes[index].type})
+                    blob = new Blob([uint8], {type: this.currenList[index].type})
                     blobURL = URL.createObjectURL(blob)
                     let blobInfo = {blob, blobURL}
                     resolve(blobInfo)
@@ -159,13 +162,18 @@
 
         //检查文件是否处理完毕
         isEnd () {
-            if (this.count === this.fileLength) {
+            if (this.count === this.currentCount) {
                 console.log('结束')
+                this.fileList = [...this.fileList,...this.currenList]
                 this.count = 0
+                this.currentCount = 0
+                this.currenList = []
+                this.upperInput.value = ''
+                console.log(this)
                 if(this.auto) this.upload()
-                this.onComplete && this.onComplete.call(this, this.fileInfoes)
+                this.onComplete && this.onComplete.call(this, this.fileList)
             } else {
-                this.reader.readAsDataURL(this.fileInfoes[this.count].file)
+                this.reader.readAsDataURL(this.currenList[this.count].file)
             }
         }
 
@@ -173,7 +181,7 @@
         async upload () {
             const formData = new FormData()
             const xhr = new XMLHttpRequest()
-            
+
 
         }
     }

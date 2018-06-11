@@ -70,16 +70,17 @@
 			return document.querySelector(selector)
 		}
 		function onFileInfo(fileInfoes) {
-		    console.log(fileInfoes)
-			console.log(upper)
 			const fragment = document.createDocumentFragment()
+			const container = $('.display')
 			fileInfoes.forEach(item =>{
 				const li = document.createElement('li')
 				li.innerHTML = `<img src="${item.blobInfo.blobURL}">`
 				fragment.append(li)
 			})
-			console.log(fragment)
-			$('.display').append(fragment)
+			while (container.firstChild) {
+                container.removeChild(container.firstChild)
+			}
+            container.append(fragment)
 		}
 		const upper =  new Upper({
 			upperInput: $('.upper-input'),
