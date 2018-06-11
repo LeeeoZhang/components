@@ -47,16 +47,16 @@
                 Array.prototype.forEach.call(files, file => {
                     if (!(/(^image\/jpe?g$)|(^image\/png$)|(^image\/gif$)/).test(file.type)) {
                         console.log('请选择正确格式的文件')
-                        return
+                    } else {
+                        const fileInfo = {}
+                        //记录文件相关信息
+                        fileInfo.file = file
+                        fileInfo.type = file.type
+                        fileInfo.size = file.size
+                        fileInfo.name = file.name
+                        fileInfo.lastModifiedDate = file.lastModifiedDate
+                        this.fileInfoes.push(fileInfo)
                     }
-                    const fileInfo = {}
-                    //记录文件相关信息
-                    fileInfo.file = file
-                    fileInfo.type = file.type
-                    fileInfo.size = file.size
-                    fileInfo.name = file.name
-                    fileInfo.lastModifiedDate = file.lastModifiedDate
-                    this.fileInfoes.push(fileInfo)
                 })
                 //把文件转换成base64进行处理
                 this.reader.readAsDataURL(this.fileInfoes[this.count].file)
