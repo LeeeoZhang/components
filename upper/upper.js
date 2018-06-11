@@ -26,6 +26,7 @@
             this.encoderOptions = null
             //文件处理完成回调
             this.onComplete = options.onComplete
+            this.eachFileComplete = options.eachFileComplete
             //文件数
             this.fileLength = 0
             this.reader = null
@@ -40,10 +41,9 @@
         bind () {
             this.reader = new FileReader()
             this.reader.onload = this.onReadAsDataUrl.bind(this)
-            this.upperInput.addEventListener('change', (event) => {
+            this.upperInput.addEventListener('change', event => {
                 const files = event.target.files
                 this.fileLength = files.length
-                //把文件转换成base64进行处理
                 Array.prototype.forEach.call(files, file => {
                     if (!(/(^image\/jpe?g$)|(^image\/png$)|(^image\/gif$)/).test(file.type)) {
                         console.log('请选择正确格式的文件')
@@ -58,7 +58,7 @@
                     fileInfo.lastModifiedDate = file.lastModifiedDate
                     this.fileInfoes.push(fileInfo)
                 })
-                console.log(this)
+                //把文件转换成base64进行处理
                 this.reader.readAsDataURL(this.fileInfoes[this.count].file)
             })
         }
@@ -69,18 +69,20 @@
             //判断是否进行压缩
             console.log(this.fileInfoes[this.count])
             if (this.fileInfoes[this.count].size > this.maxSize) {
-                this.compressImage(result).then(compressBase64 => this.toBlob(compressBase64, this.count)).then(blobInfo => {
+                this.compressImage(result).then(compressBase64 => this.base64ToBlob(compressBase64, this.count)).then(blobInfo => {
                     console.log('压缩了')
                     //blobInfo包含了文件的blob、blobURL
                     this.fileInfoes[this.count].blobInfo = blobInfo
+                    this.eachFileComplete && this.eachFileComplete(this.fileInfoes[this.count])
                     //多个文件计数
                     this.count++
                     this.isEnd()
                 }).catch(() => {})
             } else {
-                this.toBlob(result, this.count).then(blobInfo => {
+                this.base64ToBlob(result, this.count).then(blobInfo => {
                     console.log('没压缩')
                     this.fileInfoes[this.count].blobInfo = blobInfo
+                    this.eachFileComplete && this.eachFileComplete(this.fileInfoes[this.count])
                     this.count++
                     this.isEnd()
                 }).catch(() => {})
@@ -94,20 +96,23 @@
                 image.onload = () => {
                     const canvas = document.createElement('canvas')
                     const ctx = canvas.getContext('2d')
-                    const IMG_WIDTH = image.width
-                    const IMG_HEIGHT = image.height
                     let compressBase64 = ''
-                    canvas.width = IMG_WIDTH
-                    canvas.height = IMG_HEIGHT
-                    ctx.drawImage(image, 0, 0, IMG_WIDTH, IMG_HEIGHT)
-                    compressBase64 = canvas.toDataURL('image/jpg', encoderOptions)
+                    canvas.width = image.width
+                    canvas.height = image.height
+                    ctx.drawImage(image, 0, 0, image.width, image.height)
+                    //png格式图片压缩无效
+                    if(/^image\/jpe?g$/.test(this.fileInfoes[this.count].type)) {
+                        compressBase64 = canvas.toDataURL('image/jpeg', encoderOptions)
+                    } else {
+                        compressBase64 = base64
+                    }
                     resolve(compressBase64)
                 }
                 image.src = base64
             })
         }
 
-        toBlob (base64, index) {
+        base64ToBlob (base64, index) {
             //解码base64
             const decodedData = window.atob(base64.split(',')[1])
             const arrayBuffer = new ArrayBuffer(decodedData.length)
@@ -144,7 +149,7 @@
 
         //检查文件是否处理完毕
         isEnd () {
-            if (this.count === this.length) {
+            if (this.count === this.fileLength) {
                 console.log('结束')
                 this.count  = 0
                 this.onComplete && this.onComplete.call(this, this.fileInfoes)
