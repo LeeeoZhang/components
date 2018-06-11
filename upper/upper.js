@@ -62,7 +62,7 @@
                 this.reader.readAsDataURL(this.fileInfoes[this.count].file)
             })
         }
-
+        //reader回调
         onReadAsDataUrl (event) {
             //base64格式文件
             const result = event.target.result
@@ -77,7 +77,8 @@
                     //多个文件计数
                     this.count++
                     this.isEnd()
-                }).catch(() => {})
+                }).catch(() => {
+                })
             } else {
                 this.base64ToBlob(result, this.count).then(blobInfo => {
                     console.log('没压缩')
@@ -85,10 +86,11 @@
                     this.eachFileComplete && this.eachFileComplete(this.fileInfoes[this.count])
                     this.count++
                     this.isEnd()
-                }).catch(() => {})
+                }).catch(() => {
+                })
             }
         }
-
+        //图片压缩
         compressImage (base64) {
             const encoderOptions = this.encoderOptions || 0.5
             return new Promise((resolve, reject) => {
@@ -101,7 +103,7 @@
                     canvas.height = image.height
                     ctx.drawImage(image, 0, 0, image.width, image.height)
                     //png格式图片压缩无效
-                    if(/^image\/jpe?g$/.test(this.fileInfoes[this.count].type)) {
+                    if (/^image\/jpe?g$/.test(this.fileInfoes[this.count].type)) {
                         compressBase64 = canvas.toDataURL('image/jpeg', encoderOptions)
                     } else {
                         compressBase64 = base64
@@ -111,7 +113,7 @@
                 image.src = base64
             })
         }
-
+        //base64转blob
         base64ToBlob (base64, index) {
             //解码base64
             const decodedData = window.atob(base64.split(',')[1])
@@ -151,7 +153,7 @@
         isEnd () {
             if (this.count === this.fileLength) {
                 console.log('结束')
-                this.count  = 0
+                this.count = 0
                 this.onComplete && this.onComplete.call(this, this.fileInfoes)
             } else {
                 this.reader.readAsDataURL(this.fileInfoes[this.count].file)
