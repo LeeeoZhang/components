@@ -14,14 +14,20 @@
         root.Upper = factory()
     }
 }(window, () => {
-
+    let id = 0
     function ajax (autoConfig,file){
         const formData = new FormData()
         const xhr = new XMLHttpRequest()
         const {url,method,onProgress,header,withCredentials} = autoConfig
+        const {name,type,blobInfo:{size},lastModifiedDate} = file
+        const fileData = {name,type,size,lastModifiedDate}
+        Object.keys(fileData).forEach(key=>formData.append(key,fileData[key]))
         if(withCredentials) xhr.withCredentials = true
-        if(onProgress) xhr.upload = () => {
-            onProgress()
+        if(onProgress) {
+            xhr.upload.addEventListener('progress',(event)=>{
+                const percent = Math.ceil(event.loaded/event.total)*100
+                onProgress(file,percent)
+            })
         }
         return new Promise((resolve,reject) => {
             xhr.onreadystatechange = () => {
@@ -34,9 +40,11 @@
                     }
                 }
             }
-
             xhr.open({url,method})
-
+            Object.keys(header).forEach(key=>{
+                xhr.setRequestHeader(key,header[key])
+            })
+            xhr.send(formData)
         })
     }
 
@@ -45,8 +53,10 @@
         constructor (options) {
             this.upperInput = options.upperInput
             this.autoUpload = options.autoUpload
+            //最大上传尺寸限制
+            this.maxSize = options.maxSize || 1024 * 1024 * 10
             //压缩限制,超过限制进行压缩
-            this.maxSize = options.maxSize || 1024 * 30
+            this.maxCompressSize = options.maxCompressSize || 1024 * 30
             //最大同时上传数
             this.maxUploadSize = options.maxUploadSize || 3
             //文件信息
@@ -76,9 +86,16 @@
                 const files = event.target.files
                 this.currentCount = files.length
                 if(this.currentCount === 0) return
-                Array.prototype.forEach.call(files, file => {
+                if(this.currentCount > 10) {
+                    console.log('最多选择10张照片')
+                    return
+                }
+                Array.prototype.forEach.call(files, (file,index) => {
                     if (!(/(^image\/jpe?g$)|(^image\/png$)|(^image\/gif$)/).test(file.type)) {
                         console.log('请选择正确格式的文件')
+                    }  else if(file.size > this.maxSize) {
+                        console.log(`请不要上传超过10M的图片(第${index+1}张)`)
+                        this.currenList = []
                     } else {
                         const fileInfo = {}
                         //记录文件相关信息
@@ -88,6 +105,7 @@
                         fileInfo.name = file.name
                         fileInfo.lastModifiedDate = file.lastModifiedDate
                         fileInfo.isUpload = false
+                        fileInfo.id = id++
                         this.currenList.push(fileInfo)
                     }
                 })
@@ -101,8 +119,7 @@
             //base64格式文件
             const result = event.target.result
             //判断是否进行压缩
-            console.log(this.currenList[this.count])
-            if (this.currenList[this.count].size > this.maxSize) {
+            if (this.currenList[this.count].size > this.maxCompressSize) {
                 this.compressImage(result).then(compressBase64 => this.base64ToBlob(compressBase64, this.count)).then(blobInfo => {
                     console.log('压缩了')
                     //blobInfo包含了文件的blob、blobURL
@@ -111,8 +128,7 @@
                     //多个文件计数
                     this.count++
                     this.isEnd()
-                }).catch(() => {
-                })
+                }).catch(() => {})
             } else {
                 this.base64ToBlob(result, this.count).then(blobInfo => {
                     console.log('没压缩')
@@ -120,8 +136,7 @@
                     this.eachFileComplete && this.eachFileComplete(this.currenList[this.count])
                     this.count++
                     this.isEnd()
-                }).catch(() => {
-                })
+                }).catch(() => {})
             }
         }
 
@@ -195,7 +210,6 @@
                 this.currentCount = 0
                 this.currenList = []
                 this.upperInput.value = ''
-                console.log(this)
                 if(this.auto) this.upload()
                 this.onComplete && this.onComplete.call(this, this.fileList)
             } else {
@@ -207,8 +221,14 @@
         async upload () {
             //待上传的文件队列
             const uploadQueue = this.fileList.filter(file=>!file.isUpload)
-            if(uploadQueue.length <= 3) {}
+            if(uploadQueue.length === 0) {
+
+            }
         }
+
+
+
+
     }
 
     return Upper
