@@ -11,15 +11,13 @@ export default function ajax (options) {
     const xhr = new XMLHttpRequest()
     return new Promise((resolve, reject) => {
         xhr.onreadystatechange = () => {
-            if (xhr.readyState === 4 && xhr.status === 200) {
+            if (xhr.status === 200 && xhr.readyState === 4) {
                 try {
                     const response = JSON.parse(xhr.responseText)
                     resolve(response)
                 } catch (error) {
-
+                    reject(error)
                 }
-            } else {
-                reject()
             }
         }
         if (opts.withCredentials) xhr.withCredentials = true

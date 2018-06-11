@@ -15,11 +15,36 @@
     }
 }(window, () => {
 
+    function ajax (autoConfig,file){
+        const formData = new FormData()
+        const xhr = new XMLHttpRequest()
+        const {url,method,onProgress,header,withCredentials} = autoConfig
+        if(withCredentials) xhr.withCredentials = true
+        if(onProgress) xhr.upload = () => {
+            onProgress()
+        }
+        return new Promise((resolve,reject) => {
+            xhr.onreadystatechange = () => {
+                if(xhr.status === 200 && xhr.readyState === 4) {
+                    try {
+                        const response = JSON.parse(xhr.responseText)
+                        resolve(response)
+                    } catch(error) {
+                        reject(error)
+                    }
+                }
+            }
+
+            xhr.open({url,method})
+
+        })
+    }
+
     class Upper {
 
         constructor (options) {
             this.upperInput = options.upperInput
-            this.auto = options.auto
+            this.autoUpload = options.autoUpload
             //压缩限制,超过限制进行压缩
             this.maxSize = options.maxSize || 1024 * 30
             //最大同时上传数
@@ -62,6 +87,7 @@
                         fileInfo.size = file.size
                         fileInfo.name = file.name
                         fileInfo.lastModifiedDate = file.lastModifiedDate
+                        fileInfo.isUpload = false
                         this.currenList.push(fileInfo)
                     }
                 })
@@ -179,10 +205,9 @@
 
         //上传文件
         async upload () {
-            const formData = new FormData()
-            const xhr = new XMLHttpRequest()
-
-
+            //待上传的文件队列
+            const uploadQueue = this.fileList.filter(file=>!file.isUpload)
+            if(uploadQueue.length <= 3) {}
         }
     }
 

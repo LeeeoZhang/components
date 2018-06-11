@@ -1,4 +1,4 @@
-const Lz_utils = {
+const Lez_utils = {
 
     //是否是中国大陆手机
     isMobile (mobile) {
@@ -17,9 +17,9 @@ const Lz_utils = {
 }
 
 if (typeof define === 'function' && define.amd) {
-    define([], Lz_utils)
+    define([], Lez_utils)
 } else if (typeof module === 'object' && module.exports) {
-    module.exports = Lz_utils
+    module.exports = Lez_utils
 } else {
-    root.Lz_utils = Lz_utils
+    root.Lz_utils = Lez_utils
 }
