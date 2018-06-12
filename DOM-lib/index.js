@@ -41,8 +41,8 @@ let dom = {
         }
 
         function getPoint(event) {
-            let event = event || window.event //兼容IE
-            let toucheEvent = isTouch ? event.changedTouches[0] : event
+            let evt = event || window.event //兼容IE
+            let toucheEvent = isTouch ? evt.changedTouches[0] : evt
             let x = toucheEvent.pageX || (toucheEvent.clientX + document.body.scrollLeft + document.documentElement.scrollLeft)
             x -= element.offsetLeft
             let y = toucheEvent.pageY || (toucheEvent.clientY + document.body.scrollTop + document.documentElement.scrollTop)
@@ -80,11 +80,11 @@ let dom = {
         window.addEventListener('keyup', eventCenter)
 
         function eventCenter(event) {
-            let event = event || window.event
-            if (event.type === 'keyup') {
-                upOption[event.keyCode]()
+            let evt = event || window.event
+            if (evt.type === 'keyup') {
+                upOption[evt.keyCode]()
             } else {
-                downOption[event.keyCode]()
+                downOption[evt.keyCode]()
             }
         }
     },
@@ -93,28 +93,28 @@ let dom = {
     onSwipe: function(element, callback) {
         let x0, y0
         element.addEventListener('touchstart', function(event) { //记录初始触摸坐标
-            let event = event || window.event //兼容ie
-            x0 = event.touches[0].clientX
-            y0 = event.touches[0].clientY
+            let evt = event || window.event //兼容ie
+            x0 = evt.touches[0].clientX
+            y0 = evt.touches[0].clientY
         })
         element.addEventListener('touchmove', function(event) {
-            let event = event || window.event
+            let evt = event || window.event
             if (!x0 || !y0) return
-            let xMove = event.touches[0].clientX, //记录移动坐标
-                yMove = event.touches[0].clientY,
+            let xMove = evt.touches[0].clientX, //记录移动坐标
+                yMove = evt.touches[0].clientY,
                 xDiff = xMove - x0, //计算差值
                 yDiff = yMove - y0
             if (Math.abs(xDiff) > Math.abs(y)) {
                 if (xDiff > 0) {
-                    callback.call(element, event, 'right')
+                    callback.call(element, evt, 'right')
                 } else {
-                    callback.call(element, event, 'left')
+                    callback.call(element, evt, 'left')
                 }
             } else {
                 if (yDiff > 0) {
-                    callback.call(element, event, 'down')
+                    callback.call(element, evt, 'down')
                 } else {
-                    callback.call(element, event, 'up')
+                    callback.call(element, evt, 'up')
                 }
             }
         })
