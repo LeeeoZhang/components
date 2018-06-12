@@ -1,8 +1,11 @@
 /*
 *
 * 图片上传组件
-* @param {object} options 自定义配置
-*
+* @param {Object} options 自定义配置
+* @param {Number} options.maxSize 单张图片的最大尺寸限制，默认为10MB
+* @param {Number} options.maxCompressSize 压缩阈值，超过阈值的图片将被压缩
+* @param {Number} options.maxUploadSize 并发上传数
+* @param {Function} options.onComplete 所有图片处理完成后的回调函数
 * */
 
 !function (root, factory) {
@@ -14,7 +17,9 @@
         root.Upper = factory()
     }
 }(window, () => {
+
     let id = 0
+
     function ajax (autoConfig,file){
         const formData = new FormData()
         const xhr = new XMLHttpRequest()
@@ -33,6 +38,7 @@
             xhr.onreadystatechange = () => {
                 if(xhr.status === 200 && xhr.readyState === 4) {
                     try {
+                        this.fileList[file.id].isUpload = true
                         const response = JSON.parse(xhr.responseText)
                         resolve(response)
                     } catch(error) {
@@ -66,6 +72,7 @@
             //文件处理完成回调
             this.onComplete = options.onComplete
             this.eachFileComplete = options.eachFileComplete
+            this.onUploadComplete = options.onUploadComplete
             this.reader = null
             this.count = 0
             //每一轮上传的图片个数
@@ -124,7 +131,7 @@
                     console.log('压缩了')
                     //blobInfo包含了文件的blob、blobURL
                     this.currenList[this.count].blobInfo = blobInfo
-                    this.eachFileComplete && this.eachFileComplete(this.currenList[this.count])
+                    this.eachFileComplete && this.eachFileComplete.call(this,this.currenList[this.count])
                     //多个文件计数
                     this.count++
                     this.isEnd()
@@ -133,7 +140,7 @@
                 this.base64ToBlob(result, this.count).then(blobInfo => {
                     console.log('没压缩')
                     this.currenList[this.count].blobInfo = blobInfo
-                    this.eachFileComplete && this.eachFileComplete(this.currenList[this.count])
+                    this.eachFileComplete && this.eachFileComplete.call(this,this.currenList[this.count])
                     this.count++
                     this.isEnd()
                 }).catch(() => {})
@@ -220,15 +227,22 @@
         //上传文件
         async upload () {
             //待上传的文件队列
+            const maxUploadSize = this.maxUploadSize
             const uploadQueue = this.fileList.filter(file=>!file.isUpload)
+            let uploadArr = []
             if(uploadQueue.length === 0) {
-
+                this.onUploadComplete && this.onUploadComplete.call(this,this.fileList)
+                return
+            }
+            if(uploadQueue.length <= maxUploadSize) {
+                await Promise.all(uploadQueue.map(file=>ajax(this.auto,file)))
+            } else if(uploadQueue.length > maxUploadSize) {
+                uploadArr = uploadQueue.splice(0,5,0)
+                await Promise.all(uploadArr.map(file=>ajax(this.auto,file)))
+                this.upload()
             }
         }
-
-
-
-
+        
     }
 
     return Upper

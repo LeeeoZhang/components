@@ -61,7 +61,7 @@
             //禁止浏览器默认滑动
             document.addEventListener('touchmove', function (event) {
                 event.preventDefault()
-            })
+            },{passive:false})
             this.wrap.addEventListener('touchstart', (event) => {
                 this.onTouchStart(event)
             })
@@ -144,7 +144,7 @@
             this.pageList[this.current].classList.add('active')
         }
 
-        //重置移动距离，放置触碰翻页
+        //重置移动距离，防止触碰翻页
         resetMove () {
             this.moveX = 0
             this.moveY = 0
@@ -156,8 +156,7 @@
             let dir = this.direction === 'vertical' ? 'top' : 'left'
             let trans = this.direction === 'vertical' ? 'translateY' : 'translateX'
             //过渡完成时的回调函数，处理页面过渡结束后的页面属性
-            //bind绑定函数this指向pages实例
-            let onTransitionEnd = function () {
+            let onTransitionEnd =  () => {
                 this.pageList[tag ? this.current - 1 : this.next].removeEventListener('webkitTransitionEnd', onTransitionEnd)
                 //重置滑动距离,避免点击翻页
                 this.resetMove()
@@ -183,7 +182,7 @@
                     this.pageList[(this.current - 1) < 0 ? (this.totalPages - 1) : (this.current - 1)].style.transition = ''
                     this.pageList[(this.current - 1) < 0 ? (this.totalPages - 1) : (this.current - 1)].style.transform = ''
                 }
-            }.bind(this)
+            }
             //过渡时的属性配置
             let config = {
                 //将要过渡的页面提前放在屏幕外面
