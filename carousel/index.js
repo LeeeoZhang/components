@@ -34,13 +34,13 @@
                 }
                 this.diffX = this.startX = 0
             })
-            this.wrap2.addEventListener('webkitTransitionEnd',(event)=>{
+            this.wrap2.addEventListener('webkitTransitionEnd', (event) => {
                 this.onTransitionEnd && this.onTransitionEnd(this.currentIndex)
             })
         }
 
         next () {
-            if (this.nextIndex > this.pageNum - 1){
+            if (this.nextIndex > this.pageNum - 1) {
                 this.nextIndex = this.pageNum - 1
             } else {
                 this.preIndex += 1
