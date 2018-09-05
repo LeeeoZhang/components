@@ -3,9 +3,10 @@
 * 图片上传组件
 * @param {Object} options 自定义配置
 * @param {Number} options.maxSize 单张图片的最大尺寸限制，默认为10MB
-* @param {Number} options.maxCompressSize 压缩阈值，超过阈值的图片将被压缩
+* @param {Number} options.maxCompressSize 压缩阈值，超过阈值的图片将被压缩(只能压缩jpg图片)
 * @param {Number} options.maxUploadSize 并发上传数
 * @param {Function} options.onComplete 所有图片处理完成后的回调函数
+*
 * */
 
 !function (root, factory) {
@@ -68,7 +69,7 @@
             //文件信息
             this.fileList = []
             //压缩系数
-            this.encoderOptions = null
+            this.encoderOptions = options.encoderOptions || 0.5
             //文件处理完成回调
             this.onComplete = options.onComplete
             this.eachFileComplete = options.eachFileComplete
@@ -149,7 +150,7 @@
 
         //图片压缩
         compressImage (base64) {
-            const encoderOptions = this.encoderOptions || 0.5
+            const encoderOptions = this.encoderOptions
             return new Promise((resolve, reject) => {
                 const image = new Image()
                 image.onload = () => {
@@ -228,21 +229,20 @@
         async upload () {
             //待上传的文件队列
             const maxUploadSize = this.maxUploadSize
-            const uploadQueue = this.fileList.filter(file=>!file.isUpload)
+            const uploadQueue = this.fileList.filter(file => !file.isUpload)
             let uploadArr = []
-            if(uploadQueue.length === 0) {
-                this.onUploadComplete && this.onUploadComplete.call(this,this.fileList)
+            if (uploadQueue.length === 0) {
+                this.onUploadComplete && this.onUploadComplete.call(this, this.fileList)
                 return
             }
-            if(uploadQueue.length <= maxUploadSize) {
-                await Promise.all(uploadQueue.map(file=>ajax(this.auto,file)))
-            } else if(uploadQueue.length > maxUploadSize) {
-                uploadArr = uploadQueue.splice(0,5,0)
-                await Promise.all(uploadArr.map(file=>ajax(this.auto,file)))
+            if (uploadQueue.length <= maxUploadSize) {
+                await Promise.all(uploadQueue.map(file => ajax(this.auto, file)))
+            } else if (uploadQueue.length > maxUploadSize) {
+                uploadArr = uploadQueue.splice(0, this.maxUploadSize, 0)
+                await Promise.all(uploadArr.map(file => ajax(this.auto, file)))
                 this.upload()
             }
         }
-        
     }
 
     return Upper
